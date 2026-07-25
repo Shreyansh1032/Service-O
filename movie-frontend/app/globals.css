@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --color-void: #0b0b0f;
+  --color-panel: #1c1c24;
+  --color-panel-raised: #26262f;
+  --color-cream: #f5f0e8;
+  --color-marquee: #e63946;
+  --color-marquee-dim: #b3202c;
+  --color-spotlight: #ffb703;
+  --color-muted: #8a8a99;
+  --color-border: #2e2e38;
+}
+
+@theme inline {
+  --color-void: var(--color-void);
+  --color-panel: var(--color-panel);
+  --color-panel-raised: var(--color-panel-raised);
+  --color-cream: var(--color-cream);
+  --color-marquee: var(--color-marquee);
+  --color-marquee-dim: var(--color-marquee-dim);
+  --color-spotlight: var(--color-spotlight);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
+
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--color-marquee);
+  color: var(--color-cream);
+}
+
+/* Film sprocket hole border, used on hero poster frames */
+.sprocket-frame {
+  position: relative;
+  border-radius: 4px;
+}
+.sprocket-frame::before,
+.sprocket-frame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0px,
+    transparent 6px,
+    var(--color-void) 6px,
+    var(--color-void) 14px
+  );
+  background-color: #050507;
+  z-index: 2;
+}
+.sprocket-frame::before {
+  top: -14px;
+  border-radius: 4px 4px 0 0;
+}
+.sprocket-frame::after {
+  bottom: -14px;
+  border-radius: 0 0 4px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

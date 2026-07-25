@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-catalog
+spec:
+  selector: { app: movie-catalog }
+  ports: [{ port: 5001, targetPort: 5001 }]
+  type: ClusterIP

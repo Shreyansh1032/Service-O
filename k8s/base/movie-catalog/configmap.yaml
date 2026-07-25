@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movie-catalog-config
+data:
+  PORT: "5001"
+  AWS_REGION: "ap-south-1"

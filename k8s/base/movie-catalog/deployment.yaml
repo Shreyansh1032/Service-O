@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: movie-catalog }
+  template:
+    metadata:
+      labels: { app: movie-catalog }
+    spec:
+      containers:
+        - name: movie-catalog
+          image: movie-catalog:local
+          imagePullPolicy: Never
+          ports: [{ containerPort: 5001 }]
+          envFrom:
+            - configMapRef: { name: movie-catalog-config }
+            - secretRef: { name: movie-catalog-secret }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 200m, memory: 256Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 5001 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 5001 }
+            initialDelaySeconds: 15
+            periodSeconds: 20

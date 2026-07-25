@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Env files (all services)
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Next.js
+movie-frontend/.next/
+movie-frontend/out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo
+
+# k6 results (optional, if you save any)
+*.json.gz

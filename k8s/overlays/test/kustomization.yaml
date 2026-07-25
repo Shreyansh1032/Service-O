@@ -1,0 +1,7 @@
+namespace: test
+
+resources:
+  - ../../base
+
+patches:
+  - path: patches/replicas.yaml

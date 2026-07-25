@@ -1,0 +1,148 @@
+services:
+  frontend:
+    build:
+      context: ./movie-frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    environment:
+      API_GATEWAY_URL: http://api-gateway:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    env_file:
+      - ./auth-service/.env
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  movie-catalog:
+    build: ./movie-catalog
+    container_name: movie-catalog
+    env_file:
+      - ./movie-catalog/.env
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+
+  seat-service:
+    build: ./seat-service
+    container_name: seat-service
+    env_file:
+      - ./seat-service/.env
+    environment:
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "5002:5002"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  booking-service:
+    build: ./booking-service
+    container_name: booking-service
+    env_file:
+      - ./booking-service/.env
+    environment:
+      SEAT_SERVICE_URL: http://seat-service:5002
+      NOTIFICATION_SERVICE_URL: http://notification-service:5005
+    ports:
+      - "5003:5003"
+    depends_on:
+      - seat-service
+    restart: unless-stopped
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    env_file:
+      - ./payment-service/.env
+    environment:
+      BOOKING_SERVICE_URL: http://booking-service:5003
+    ports:
+      - "5004:5004"
+    depends_on:
+      - booking-service
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    env_file:
+      - ./api-gateway/.env
+    environment:
+      AUTH_SERVICE: http://auth-service:5000
+      MOVIE_SERVICE: http://movie-catalog:5001
+      SEAT_SERVICE: http://seat-service:5002
+      BOOKING_SERVICE: http://booking-service:5003
+      PAYMENT_SERVICE: http://payment-service:5004
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - movie-catalog
+      - seat-service
+      - booking-service
+      - payment-service
+    restart: unless-stopped
+  
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    env_file:
+      - ./notification-service/.env
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:5000
+    ports:
+      - "5005:5005"
+    depends_on:
+      - auth-service
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - auth-service
+      - movie-catalog
+      - seat-service
+      - booking-service
+      - payment-service
+      - notification-service
+      - api-gateway
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,35 @@
+# ---- Dependencies ----
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+
+# ---- Build ----
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Only NEXT_PUBLIC_* vars need to exist at build time (they get baked into
+# the client bundle). Pass it as a build arg so different envs (dev/test/prod)
+# can bake in different gateway URLs without changing the Dockerfile.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+RUN npm run build
+
+# ---- Runtime ----
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# standalone output already includes a minimal node_modules + server.js
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+USER node
+EXPOSE 3000
+
+CMD ["node", "server.js"]

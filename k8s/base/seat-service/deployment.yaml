@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seat-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: seat-service }
+  template:
+    metadata:
+      labels: { app: seat-service }
+    spec:
+      containers:
+        - name: seat-service
+          image: seat-service:local
+          imagePullPolicy: Never
+          ports: [{ containerPort: 5002 }]
+          envFrom:
+            - configMapRef: { name: seat-service-config }
+            - secretRef: { name: seat-service-secret }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 200m, memory: 256Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 5002 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 5002 }
+            initialDelaySeconds: 15
+            periodSeconds: 20

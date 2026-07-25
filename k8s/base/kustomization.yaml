@@ -1,0 +1,13 @@
+resources:
+  - auth-service
+  - movie-catalog
+  - seat-service
+  - booking-service
+  - payment-service
+  - notification-service
+  - api-gateway
+  - frontend
+  - redis
+  - prometheus
+  - grafana
+  - ingress

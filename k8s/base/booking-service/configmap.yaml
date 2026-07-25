@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: booking-service-config
+data:
+  PORT: "5003"
+  SEAT_SERVICE_URL: "http://seat-service:5002"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:5005"

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+data:
+  PORT: "8000"
+  AUTH_SERVICE: "http://auth-service:5000"
+  MOVIE_SERVICE: "http://movie-catalog:5001"
+  SEAT_SERVICE: "http://seat-service:5002"
+  BOOKING_SERVICE: "http://booking-service:5003"
+  PAYMENT_SERVICE: "http://payment-service:5004"
