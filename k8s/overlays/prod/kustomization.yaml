@@ -6,3 +6,4 @@ resources:
 patches:
   - path: patches/replicas.yaml
   - path: patches/resources.yaml
+  - path: patches/ingress.yaml
