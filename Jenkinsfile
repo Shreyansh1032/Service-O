@@ -23,11 +23,27 @@ pipeline {
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Deploy to Dev') {
             steps {
-                sh '''
-                    kubectl apply -k k8s/overlays/dev
-                '''
+                sh 'kubectl apply -k k8s/overlays/dev'
+            }
+        }
+
+        stage('Deploy to Test') {
+            steps {
+                sh 'kubectl apply -k k8s/overlays/test'
+            }
+        }
+
+        stage('Approve Production Deploy') {
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy to Prod') {
+            steps {
+                sh 'kubectl apply -k k8s/overlays/prod'
             }
         }
     }
